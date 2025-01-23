@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/csv"
+	"bufio"
 	"fmt"
 	"os"
 	"sort"
@@ -19,7 +19,7 @@ type City struct {
 type CityMap map[string]City
 
 func main() {
-	file, err := os.Open("weather_stations.csv")
+	file, err := os.Open("measurements.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -28,16 +28,11 @@ func main() {
 
 	cities := make(CityMap)
 
-	csvReader := csv.NewReader(file)
-	records, err := csvReader.ReadAll()
-
-	if err != nil {
-		fmt.Println("Error reading csv file:", err)
-		return
-	}
+	scanner := bufio.NewScanner(file)
 	
-	for _, item := range records {
-		cityName, cityWeather := formatLine(item[0])
+	for scanner.Scan() {
+		line := scanner.Text()
+		cityName, cityWeather := formatLine(line)
 
 		if checkIfCityExistsInMap(cities, cityName) {
 			updateCityInMap(&cities, cityName, cityWeather)
